@@ -8,37 +8,37 @@ class LoginFormWidget extends StatefulWidget {
 }
 
 class LoginFormWidgetState extends State<LoginFormWidget> {
-  final emailController = TextEditingController();
+  final nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) => Center(
         child: ListView(
           padding: const EdgeInsets.all(32),
           children: [
-            buildEmail(),
+            buildName(),
             const SizedBox(height: 24),
           ],
         ),
       );
 
-  Widget buildEmail() => TextField(
-        controller: emailController,
+  Widget buildName() => TextField(
+        controller: nameController,
         decoration: InputDecoration(
-          hintText: 'examle@example.com',
-          labelText: 'Email',
+          hintText: 'Pokerplayer1',
+          labelText: 'Name',
           //Icon at stat of form
-          prefixIcon: const Icon(Icons.mail),
+          prefixIcon: const Icon(Icons.person),
 
           //Icon to remove data
           suffixIcon: IconButton(
             icon: const Icon(Icons.close),
-            onPressed: () => emailController.clear(),
+            onPressed: () => nameController.clear(),
           ),
           border: const OutlineInputBorder(),
         ),
 
-        //Makes you able to choose already written emails.
-        keyboardType: TextInputType.emailAddress,
+        //Makes you able to choose already written names from the users history.
+        keyboardType: TextInputType.name,
 
         //Makes you able to hit done in the bottom right on your keyboard.
         textInputAction: TextInputAction.done,
