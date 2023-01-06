@@ -10,47 +10,78 @@ class LoginPage extends StatefulWidget {
   }
 }
 
-// Define a corresponding State class.
-// This class holds data related to the form.
 class LoginPageState extends State<LoginPage> {
-  // Create a global key that uniquely identifies the Form widget
-  // and allows validation of the form.
-  //
-  // Note: This is a `GlobalKey<FormState>`,
-  // not a GlobalKey<LoginPageState>.
+  //Properties
   final _formKey = GlobalKey<FormState>();
+  final nameController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  //Widget form
+  @override
   Widget build(BuildContext context) {
-    // Build a Form widget using the _formKey created above.
-    return Form(
-      key: _formKey,
-      child: Column(
-        children: <Widget>[
-          // Add TextFormFields and ElevatedButton here.
-          TextFormField(
-            // The validator receives the text that the user has entered.
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a username';
-              }
-              return null;
-            },
-          ),
-          ElevatedButton(
-            onPressed: () {
-              // Validate returns true if the form is valid, or false otherwise.
-              if (_formKey.currentState!.validate()) {
-                // If the form is valid, display a snackbar. In the real world,
-                // you'd often call a server or save the information in a database.
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Processing Data')),
-                );
-              }
-            },
-            child: const Text('Submit'),
-          ),
-        ],
+    return Scaffold(
+      body: Center(
+        child: Builder(
+          builder: (context) => FutureBuilder(
+              // future: clientService.getLoignToken(),
+              builder: (BuildContext context, snapshot) {
+            // if (!snapshot.hasData) {
+            //   return const CircularProgressIndicator();
+            // }
+            // _loginToken = 'Bearer ${snapshot.data}';
+            return Builder(
+              builder: (context) => Center(
+                child: Form(
+                  key: _formKey,
+                  child: Container(
+                    height: 110,
+                    width: 300,
+                    child: Column(children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(
+                          hintText: 'Angiv ønsket brugernavn',
+                          labelText: 'Navn',
+                          //Icon at stat of form
+                          prefixIcon: const Icon(Icons.person),
+
+                          //Icon to remove data
+                          suffixIcon: IconButton(
+                            icon: const Icon(Icons.close),
+                            onPressed: () => nameController.clear(),
+                          ),
+                          border: const OutlineInputBorder(),
+                        ),
+
+                        //Makes you able to choose already written names from the users history.
+                        keyboardType: TextInputType.name,
+
+                        //Makes you able to hit done in the bottom right on your keyboard.
+                        textInputAction: TextInputAction.done,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Validate returns true if the form is valid, or false otherwise.
+                          if (_formKey.currentState!.validate()) {
+                            // If the form is valid, display a snackbar.
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Logger ind')),
+                            );
+                          }
+                        },
+                        child: const Text('Login'),
+                      ),
+                    ]),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
       ),
     );
   }
