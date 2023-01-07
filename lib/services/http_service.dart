@@ -3,13 +3,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HttpClientService {
-  final String _baseUrl = 'http://0.0.0.0:5000/';
-  // final String _baseUrl = 'http://localhost:5141/';
+  final String _baseUrl = 'http://10.0.2.2:5141/';
 
   Future<String> getLoginToken() async {
     var headers = {'Content-Type': 'application/json'};
     var request =
-        http.Request('GET', Uri.parse('{_baseUrl}api/auth/guesttoken'));
+        http.Request('GET', Uri.parse('${_baseUrl}api/auth/guesttoken'));
     request.headers.addAll(headers);
     var response2 = await request.send();
     if (response2.statusCode == 200) {
