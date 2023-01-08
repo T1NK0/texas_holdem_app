@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class HttpClientService {
-  final String _baseUrl = 'http://10.0.2.2:5141/';
+  final String _baseUrl = 'http://10.0.2.2:5000/';
 
   Future<String> getLoginToken() async {
     var headers = {'Content-Type': 'application/json'};
     var request =
-        http.Request('GET', Uri.parse('${_baseUrl}api/auth/guesttoken'));
+        http.Request('GET', Uri.parse('${_baseUrl}api/Login/guesttoken'));
     request.headers.addAll(headers);
     var response2 = await request.send();
     if (response2.statusCode == 200) {
@@ -25,7 +25,7 @@ class HttpClientService {
       'Authorization': loginToken
     };
     var request =
-        http.Request('POST', Uri.parse('${_baseUrl}api/auth/usertoken'));
+        http.Request('POST', Uri.parse('${_baseUrl}api/login/usertoken'));
     request.headers.addAll(headers);
     request.body = json.encode({"username": userName});
     var response2 = await request.send();
@@ -48,7 +48,7 @@ class HttpClientService {
       'Authorization': currentUser.token
     };
     var request =
-        http.Request('POST', Uri.parse('${_baseUrl}api/auth/playtoken'));
+        http.Request('POST', Uri.parse('${_baseUrl}api/Login/playtoken'));
     request.headers.addAll(headers);
     var response2 = await request.send();
     if (response2.statusCode == 200) {

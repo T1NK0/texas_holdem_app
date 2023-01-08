@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:texas_holdem_app/globals.dart';
 import 'package:texas_holdem_app/pages/gamehub.dart';
@@ -32,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _openGameHub() {
-    print("-----Gamehub Open-----");
+    print("-----Open Gamehub-----");
     print('Token: ${currentUser.token}');
     Navigator.push<void>(
       context,
@@ -85,10 +83,8 @@ class _LoginPageState extends State<LoginPage> {
                               }
                               return null;
                             },
-
                             //Makes you able to choose already written names from the users history.
                             keyboardType: TextInputType.name,
-
                             //Makes you able to hit done in the bottom right on your keyboard.
                             textInputAction: TextInputAction.done,
                           ),
@@ -97,11 +93,13 @@ class _LoginPageState extends State<LoginPage> {
                               // Validate returns true if the form is valid, or false otherwise.
                               if (_formKey.currentState!.validate()) {
                                 await clientService.login(
-                                    nameController.value.toString(),
-                                    _loginToken);
+                                    nameController.text, _loginToken);
                                 // If the form is valid, display a snackbar.
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Logger ind')),
+                                  SnackBar(
+                                    content:
+                                        Text('Welcome ${currentUser.username}'),
+                                  ),
                                 );
                                 _openGameHub();
                               }
