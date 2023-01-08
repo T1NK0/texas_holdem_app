@@ -15,8 +15,10 @@ class GameApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-          // scaffoldBackgroundColor: Colors.grey[900],
-          primarySwatch: Colors.green),
+        // scaffoldBackgroundColor: Colors.grey[900],
+        primaryColor: Colors.green,
+        primarySwatch: Colors.green,
+      ),
       home: const PokerAppMainScreen(),
     );
   }
