@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_card/image_card.dart';
-import 'package:texas_holdem_app/pages/TexasHoldemGame.dart';
+import 'package:texas_holdem_app/pages/texas_holdem_game.dart';
 
 class GamehubPage extends StatelessWidget {
   const GamehubPage({super.key});
@@ -21,8 +21,7 @@ class GamehubPage extends StatelessWidget {
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (BuildContext context) =>
-                          const TexasHoldemGamePage(),
+                      builder: (BuildContext context) => TexasHoldemGamePage(),
                     ),
                   );
                 },
@@ -42,16 +41,14 @@ class GamehubPage extends StatelessWidget {
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (BuildContext context) =>
-                          const TexasHoldemGamePage(),
+                      builder: (BuildContext context) => TexasHoldemGamePage(),
                     ),
                   );
                 },
                 child: const Card(
                   child: TransparentImageCard(
                     width: 200,
-                    imageProvider:
-                        AssetImage('assets/images/SL_120319_25700_24.jpg'),
+                    imageProvider: AssetImage('assets/images/.jpg'),
                     title: Text('Seven Card Stub',
                         style: TextStyle(color: Colors.white)),
                     description: Text('Players: 0/9',

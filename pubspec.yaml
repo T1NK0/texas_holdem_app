@@ -38,6 +38,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   http: ^0.13.5
   image_card: ^0.0.4
+  logger: ^1.1.0
+  signalr_netcore: ^1.3.3
 
 dev_dependencies:
   flutter_test:
@@ -67,7 +69,8 @@ flutter:
   #   - images/a_dot_ham.jpeg
   assets: 
       - assets/images/SL_120319_25700_24.jpg
-      - assets/images/map-gd2d516e34_1280.jpg
+      - assets/images/MadsTinkoMadsenWallpaper.jpg
+      - assets/images/playingcards/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

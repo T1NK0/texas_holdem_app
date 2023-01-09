@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:texas_holdem_app/pages/login.dart';
-import 'widgets/drawer.dart';
 
 void main() {
   runApp(const GameApp());
@@ -16,6 +15,7 @@ class GameApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // scaffoldBackgroundColor: Colors.grey[900],
+        brightness: Brightness.dark,
         primaryColor: Colors.green,
         primarySwatch: Colors.green,
       ),
