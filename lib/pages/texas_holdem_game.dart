@@ -123,8 +123,11 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       setState(() {
         try {
           var obj = arguments![0].toString();
-          _message = '$obj';
-          _messageLog.add(_message);
+          _message = obj;
+
+          _messageLog[2] = _messageLog[1];
+          _messageLog[1] = _messageLog[0];
+          _messageLog[0] = _message;
         } on Exception catch (e) {
           print(e.toString());
         }
@@ -172,10 +175,9 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                       const SizedBox(
                         height: 10,
                       ),
-                      for (var i in _messageLog) Text(i.toString()),
-                      const SizedBox(
-                        height: 10,
-                      ),
+                      Text(_messageLog[2]),
+                      Text(_messageLog[1]),
+                      Text(_messageLog[0]),
                       ElevatedButton(
                         onPressed: _isReady
                             ? null
@@ -190,9 +192,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                               },
                         child: const Text('Ready to play'),
                       ),
-                      // Text('1:'),
-                      // Text('2:'),
-                      // Text('3:'),
                     ],
                   )),
             ],
