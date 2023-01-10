@@ -48,7 +48,8 @@ class GamehubPage extends StatelessWidget {
                 child: const Card(
                   child: TransparentImageCard(
                     width: 200,
-                    imageProvider: AssetImage('assets/images/.jpg'),
+                    imageProvider:
+                        AssetImage('assets/images/SL_120319_25700_24.jpg'),
                     title: Text('Seven Card Stub',
                         style: TextStyle(color: Colors.white)),
                     description: Text('Players: 0/9',

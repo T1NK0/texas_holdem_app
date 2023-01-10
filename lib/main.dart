@@ -17,7 +17,7 @@ class GameApp extends StatelessWidget {
         // scaffoldBackgroundColor: Colors.grey[900],
         brightness: Brightness.dark,
         primaryColor: Colors.green,
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.red,
       ),
       home: const PokerAppMainScreen(),
     );
