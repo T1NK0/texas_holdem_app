@@ -68,8 +68,8 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets: 
-      - assets/images/SL_120319_25700_24.jpg
-      - assets/images/playingcards/default.jpg
+      - assets/images/
+      - assets/images/playingcards/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

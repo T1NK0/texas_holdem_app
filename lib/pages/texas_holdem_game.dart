@@ -114,7 +114,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
       //Inform sever player is connceted to room.
       await _hubConnection.invoke("PlayerConnected",
-          args: [currentUser.username, 'has connected', _signalRClientId]);
+          args: [currentUser.username, _signalRClientId]);
     } catch (error) {
       print(error);
     }
@@ -204,6 +204,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                 margin: EdgeInsets.all(5),
                 child: Column(children: [
                   Text('Table'),
+                  SizedBox(height: 10),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -223,11 +224,17 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
               Column(
                 children: [
                   Text("Player hand"),
-                  Row(
-                    children: [
-                      PlayingCardWidget(path: GetPath(_firstPlayerCard)),
-                      PlayingCardWidget(path: GetPath(_secondPlayerCard))
-                    ],
+                  SizedBox(height: 10),
+                  Container(
+                    width: 400,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        PlayingCardWidget(path: GetPath(_firstPlayerCard)),
+                        SizedBox(width: 10),
+                        PlayingCardWidget(path: GetPath(_secondPlayerCard))
+                      ],
+                    ),
                   ),
                 ],
               )
