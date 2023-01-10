@@ -20,6 +20,11 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   String _playerConnectionStatus = "Disconnected";
   String _message = "Message to receive";
   String _signalRClientId = "";
+  List<String> _messageLog = [
+    "",
+    "",
+    "",
+  ];
 
   late bool _isReady;
 
@@ -31,6 +36,8 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   PlayingCard _firstCommunityCard = PlayingCard();
   PlayingCard _secondCommunityCard = PlayingCard();
   PlayingCard _thirdCommunityCard = PlayingCard();
+  PlayingCard _fourthCommunityCard = PlayingCard();
+  PlayingCard _fifthCommunityCard = PlayingCard();
 
   late HubConnection _hubConnection;
   HttpClientService clientService = HttpClientService();
@@ -64,8 +71,24 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
         )
         .build();
 
-    _hubConnection.on("SendMessage", (arguments) {
-      setState(() {});
+    _hubConnection.on("GetFlop", (arguments) {
+      setState(() {
+        try {
+          var obj = arguments![0];
+          _firstCommunityCard =
+              PlayingCard.fromMap(obj as Map<String, dynamic>);
+
+          var obj2 = arguments[1];
+          _secondCommunityCard =
+              PlayingCard.fromMap(obj2 as Map<String, dynamic>);
+
+          var obj3 = arguments[2];
+          _thirdCommunityCard =
+              PlayingCard.fromMap(obj3 as Map<String, dynamic>);
+        } on Exception catch (e) {
+          print(e.toString());
+        }
+      });
     });
 
     _hubConnection.on("GetPlayerCards", (arguments) {
@@ -91,201 +114,153 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
       //Inform sever player is connceted to room.
       await _hubConnection.invoke("PlayerConnected",
-          args: [currentUser.username, _signalRClientId]);
+          args: [currentUser.username, 'has connected', _signalRClientId]);
     } catch (error) {
       print(error);
     }
 
-    // Gets the path to card images
-    String GetPath(PlayingCard card) {
-      if (card.value == "default") {
-        return "default";
-      } else {
-        return card.value + "_of_" + card.suit;
-      }
+    _hubConnection.on("SendMessage", (arguments) {
+      setState(() {
+        try {
+          var obj = arguments![0].toString();
+          _message = '$obj';
+          _messageLog.add(_message);
+        } on Exception catch (e) {
+          print(e.toString());
+        }
+      });
+    });
+  }
+
+  // Gets the path to card images
+  String GetPath(PlayingCard card) {
+    if (card.value == "default") {
+      return "default";
+    } else {
+      return card.value + "_of_" + card.suit;
     }
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          title: Text('Texas Holdem'),
-        ),
-        body: SingleChildScrollView(
-          child: Column(children: [
-            Row(
-              children: [
-                Container(
-                    width: 400,
-                    height: 150,
-                    margin: EdgeInsets.all(5),
-                    // padding: const EdgeInsets.only(
-                    //     left: 10, top: 20, right: 10, bottom: 0),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        border: Border.all(
-                            color: Colors.grey,
-                            width: 1,
-                            style: BorderStyle.solid,
-                            strokeAlign: StrokeAlign.inside)),
-                    child: Column(
-                      children: [
-                        Text('1:'),
-                        Text('2:'),
-                        Text('3:'),
-                      ],
-                    )),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Texas Holdem'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(children: [
+          Row(
+            children: [
+              Container(
                   width: 400,
+                  height: 150,
                   margin: EdgeInsets.all(5),
-                  child: Column(children: [
-                    Text('Table'),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Container(
-                            width: 75,
-                            height: 115,
-                            // padding: const EdgeInsets.only(
-                            //     left: 10, top: 20, right: 10, bottom: 0),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1,
-                                    style: BorderStyle.solid,
-                                    strokeAlign: StrokeAlign.inside)),
-                            child: Image.asset(
-                                'assets/images/MadsTinkoMadsenWallpaper.jpg'),
-                          ),
-                          Container(
-                            width: 75,
-                            height: 115,
-                            // padding: const EdgeInsets.only(
-                            //     left: 10, top: 20, right: 10, bottom: 0),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1,
-                                    style: BorderStyle.solid,
-                                    strokeAlign: StrokeAlign.inside)),
-                            child: Image.asset(
-                                'assets/images/MadsTinkoMadsenWallpaper.jpg'),
-                          ),
-                          Container(
-                            width: 75,
-                            height: 115,
-                            // padding: const EdgeInsets.only(
-                            //     left: 10, top: 20, right: 10, bottom: 0),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1,
-                                    style: BorderStyle.solid,
-                                    strokeAlign: StrokeAlign.inside)),
-                            child: Image.asset(
-                                'assets/images/MadsTinkoMadsenWallpaper.jpg'),
-                          ),
-                          Container(
-                            width: 75,
-                            height: 115,
-                            // padding: const EdgeInsets.only(
-                            //     left: 10, top: 20, right: 10, bottom: 0),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1,
-                                    style: BorderStyle.solid,
-                                    strokeAlign: StrokeAlign.inside)),
-                            child: Image.asset(
-                                'assets/images/MadsTinkoMadsenWallpaper.jpg'),
-                          ),
-                          Container(
-                            width: 75,
-                            height: 115,
-                            // padding: const EdgeInsets.only(
-                            //     left: 10, top: 20, right: 10, bottom: 0),
-                            decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.grey,
-                                    width: 1,
-                                    style: BorderStyle.solid,
-                                    strokeAlign: StrokeAlign.inside)),
-                            child: Image.asset(
-                                'assets/images/MadsTinkoMadsenWallpaper.jpg'),
-                          ),
-                        ]),
-                  ]),
-                )
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                PlayingCardWidget(path: (_firstPlayerCard)),
-                PlayingCardWidget(path: (_secondPlayerCard))
-                // Container(
-                //   width: 75,
-                //   height: 115,
-                //   margin: EdgeInsets.all(5),
-                //   // padding: const EdgeInsets.only(
-                //   //     left: 10, top: 20, right: 10, bottom: 0),
-                //   decoration: BoxDecoration(
-                //       border: Border.all(
-                //           color: Colors.grey,
-                //           width: 1,
-                //           style: BorderStyle.solid,
-                //           strokeAlign: StrokeAlign.inside)),
-                //   child:
-                //       Image.asset('assets/images/MadsTinkoMadsenWallpaper.jpg'),
-                // ),
-                // Container(
-                //   width: 75,
-                //   height: 115,
-                //   margin: EdgeInsets.all(5),
-                //   // padding: const EdgeInsets.only(
-                //   //     left: 10, top: 20, right: 10, bottom: 0),
-                //   decoration: BoxDecoration(
-                //       border: Border.all(
-                //           color: Colors.grey,
-                //           width: 1,
-                //           style: BorderStyle.solid,
-                //           strokeAlign: StrokeAlign.inside)),
-                //   child:
-                //       Image.asset('assets/images/MadsTinkoMadsenWallpaper.jpg'),
-                // ),
-              ],
-            ),
-            Container(
-              height: 50,
-              alignment: Alignment.bottomCenter,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  // padding: const EdgeInsets.only(
+                  //     left: 10, top: 20, right: 10, bottom: 0),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      border: Border.all(
+                          color: Colors.grey,
+                          width: 1,
+                          style: BorderStyle.solid,
+                          strokeAlign: StrokeAlign.inside)),
+                  child: Column(
+                    children: [
+                      Text(
+                        "Status: $_playerConnectionStatus",
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      for (var i in _messageLog) Text(i.toString()),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      ElevatedButton(
+                        onPressed: _isReady
+                            ? null
+                            : () async {
+                                print(_hubConnection.connectionId);
+                                _isReady = true;
+                                await _hubConnection.invoke("PlayerIsReady",
+                                    args: [
+                                      currentUser.username,
+                                      _signalRClientId
+                                    ]);
+                              },
+                        child: const Text('Ready to play'),
+                      ),
+                      // Text('1:'),
+                      // Text('2:'),
+                      // Text('3:'),
+                    ],
+                  )),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                width: 400,
+                margin: EdgeInsets.all(5),
+                child: Column(children: [
+                  Text('Table'),
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        PlayingCardWidget(path: GetPath(_firstCommunityCard)),
+                        PlayingCardWidget(path: GetPath(_secondCommunityCard)),
+                        PlayingCardWidget(path: GetPath(_thirdCommunityCard)),
+                        PlayingCardWidget(path: GetPath(_fourthCommunityCard)),
+                        PlayingCardWidget(path: GetPath(_fifthCommunityCard)),
+                      ]),
+                ]),
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
                 children: [
-                  ElevatedButton(
-                    onPressed: () async {},
-                    child: const Text(textScaleFactor: 1.25, 'CHECK'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {},
-                    child: const Text(textScaleFactor: 1.25, 'CALL'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {},
-                    child: const Text(textScaleFactor: 1.25, 'RAISE'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {},
-                    child: const Text(textScaleFactor: 1.25, 'FOLD'),
+                  Text("Player hand"),
+                  Row(
+                    children: [
+                      PlayingCardWidget(path: GetPath(_firstPlayerCard)),
+                      PlayingCardWidget(path: GetPath(_secondPlayerCard))
+                    ],
                   ),
                 ],
-              ),
+              )
+            ],
+          ),
+          Container(
+            height: 50,
+            alignment: Alignment.bottomCenter,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {},
+                  child: const Text(textScaleFactor: 1.25, 'CHECK'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {},
+                  child: const Text(textScaleFactor: 1.25, 'CALL'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {},
+                  child: const Text(textScaleFactor: 1.25, 'RAISE'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {},
+                  child: const Text(textScaleFactor: 1.25, 'FOLD'),
+                ),
+              ],
             ),
-          ]),
-        ),
-      );
+          ),
+        ]),
+      ),
+    );
+  }
 }
