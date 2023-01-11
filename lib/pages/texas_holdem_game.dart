@@ -57,8 +57,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   @override
   void dispose() async {
     super.dispose();
-    await _hubConnection.invoke("PlayerDisconnected",
-        args: [currentUser.username, _signalRClientId]);
     _hubConnection.stop();
   }
 
@@ -167,6 +165,18 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Texas Holdem'),
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () async {
+                await _hubConnection.invoke("PlayerDisconnected",
+                    args: [currentUser.username, _signalRClientId]);
+                Navigator.pop(context);
+              },
+            );
+          },
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(children: [
@@ -176,8 +186,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                   width: 400,
                   height: 150,
                   margin: EdgeInsets.all(5),
-                  // padding: const EdgeInsets.only(
-                  //     left: 10, top: 20, right: 10, bottom: 0),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                       border: Border.all(
