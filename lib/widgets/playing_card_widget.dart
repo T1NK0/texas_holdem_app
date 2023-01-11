@@ -11,6 +11,6 @@ class PlayingCardWidget extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         width: 75,
         height: 115,
-        child: Image.asset('assets/images/playingcards/$path.jpg'),
+        child: Image.asset('assets/images/playingcards/$path.png'),
       );
 }
