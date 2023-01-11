@@ -1,8 +1,8 @@
 import 'dart:core';
 
 class PlayingCard {
-  late final String suit;
-  late final String value;
+  late String suit;
+  late String value;
 
   PlayingCard({this.suit = "default", this.value = "default"});
 

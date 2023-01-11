@@ -67,11 +67,13 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
           "http://10.0.2.2:5000/texas",
           options: HttpConnectionOptions(
             accessTokenFactory: () async => await currentUser.GetToken(),
+            // transport: HttpTransportType.WebSockets,
           ),
         )
+        .withAutomaticReconnect()
         .build();
 
-    _hubConnection.on("GetFlop", (arguments) {
+    _hubConnection.on("GetFlop", (arguments) async {
       setState(() {
         try {
           var obj = arguments![0];
@@ -91,14 +93,16 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
-    _hubConnection.on("GetPlayerCards", (arguments) {
+    _hubConnection.on("GetPlayerCards", (arguments) async {
       setState(() {
         try {
           var obj = arguments![0];
-          _firstPlayerCard = PlayingCard.fromMap(obj as Map<String, dynamic>);
+          _firstPlayerCard =
+              PlayingCard.fromMap(obj as Map<String, dynamic>);
 
           var obj2 = arguments[1];
-          _secondPlayerCard = PlayingCard.fromMap(obj2 as Map<String, dynamic>);
+          _secondPlayerCard =
+              PlayingCard.fromMap(obj2 as Map<String, dynamic>);
         } on Exception catch (e) {
           print(e.toString());
         }
@@ -119,7 +123,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       print(error);
     }
 
-    _hubConnection.on("SendMessage", (arguments) {
+    _hubConnection.on("SendMessage", (arguments) async {
       setState(() {
         try {
           var obj = arguments![0].toString();
@@ -134,6 +138,10 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
   }
+
+  Logger get newMethod => PrintLog;
+
+  Logger get PrintLog => logger;
 
   // Gets the path to card images
   String GetPath(PlayingCard card) {
