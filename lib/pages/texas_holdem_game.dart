@@ -19,6 +19,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   //Properties
   String _playerConnectionStatus = "Disconnected";
   String _message = "Message to receive";
+  String _playerMoney = "";
   String _signalRClientId = "";
   List<String> _messageLog = [
     "",
@@ -97,12 +98,10 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       setState(() {
         try {
           var obj = arguments![0];
-          _firstPlayerCard =
-              PlayingCard.fromMap(obj as Map<String, dynamic>);
+          _firstPlayerCard = PlayingCard.fromMap(obj as Map<String, dynamic>);
 
           var obj2 = arguments[1];
-          _secondPlayerCard =
-              PlayingCard.fromMap(obj2 as Map<String, dynamic>);
+          _secondPlayerCard = PlayingCard.fromMap(obj2 as Map<String, dynamic>);
         } on Exception catch (e) {
           print(e.toString());
         }
@@ -122,6 +121,17 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     } catch (error) {
       print(error);
     }
+
+    _hubConnection.on("UpdateMoney", (arguments) async {
+      setState(() {
+        try {
+          var obj = arguments![0].toString();
+          _playerMoney = obj;
+        } on Exception catch (e) {
+          print(e.toString());
+        }
+      });
+    });
 
     _hubConnection.on("SendMessage", (arguments) async {
       setState(() {
@@ -248,6 +258,9 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
               )
             ],
           ),
+          Row(
+            children: [Text('Turkey coins: $_playerMoney')],
+          ),
           Container(
             height: 50,
             alignment: Alignment.bottomCenter,
@@ -255,19 +268,47 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ElevatedButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    await _hubConnection.invoke("PlayerMove", args: [
+                      currentUser.username,
+                      'check',
+                      0,
+                      _signalRClientId
+                    ]);
+                  },
                   child: const Text(textScaleFactor: 1.25, 'CHECK'),
                 ),
                 ElevatedButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    await _hubConnection.invoke("PlayerMove", args: [
+                      currentUser.username,
+                      'call',
+                      0,
+                      _signalRClientId
+                    ]);
+                  },
                   child: const Text(textScaleFactor: 1.25, 'CALL'),
                 ),
                 ElevatedButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    await _hubConnection.invoke("PlayerMove", args: [
+                      currentUser.username,
+                      "raise",
+                      200,
+                      _signalRClientId
+                    ]);
+                  },
                   child: const Text(textScaleFactor: 1.25, 'RAISE'),
                 ),
                 ElevatedButton(
-                  onPressed: () async {},
+                  onPressed: () async {
+                    await _hubConnection.invoke("PlayerMove", args: [
+                      currentUser.username,
+                      "fold",
+                      0,
+                      _signalRClientId
+                    ]);
+                  },
                   child: const Text(textScaleFactor: 1.25, 'FOLD'),
                 ),
               ],
