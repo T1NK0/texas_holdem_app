@@ -76,7 +76,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
         .withAutomaticReconnect()
         .build();
 
-    _hubConnection.on("GetFlop", (arguments) async {
+    _hubConnection.on("GetFlop", (arguments) {
       setState(() {
         try {
           var obj = arguments![0];
@@ -96,7 +96,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
-    _hubConnection.on("GetTurn", (arguments) async {
+    _hubConnection.on("GetTurn", (arguments) {
       setState(() {
         try {
           var obj = arguments![0];
@@ -108,7 +108,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
-    _hubConnection.on("GetRiver", (arguments) async {
+    _hubConnection.on("GetRiver", (arguments) {
       setState(() {
         try {
           var obj = arguments![0];
@@ -120,7 +120,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
-    _hubConnection.on("GetPlayerCards", (arguments) async {
+    _hubConnection.on("GetPlayerCards", (arguments) {
       setState(() {
         try {
           var obj = arguments![0];
@@ -148,7 +148,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       print(error);
     }
 
-    _hubConnection.on("UpdateMoney", (arguments) async {
+    _hubConnection.on("UpdateMoney", (arguments) {
       setState(() {
         try {
           var obj = arguments![0].toString();
@@ -159,7 +159,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
-    _hubConnection.on("SendMessage", (arguments) async {
+    _hubConnection.on("SendMessage", (arguments) {
       setState(() {
         try {
           var obj = arguments![0].toString();
@@ -174,13 +174,16 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
-    _hubConnection.on("ActionReady", (arguments) async {
-      try {
-        var obj = arguments![0];
-        _validActions = ActionModel.fromMap(obj as Map);
-      } on Exception catch (e) {
-        print(e.toString());
-      }
+    _hubConnection.on("ActionReady", (arguments) {
+      setState(() {
+        try {
+          var obj = arguments![0];
+          _validActions = ActionModel.fromMap(obj as Map);
+          print("------- ActionReady has run -------");
+        } on Exception catch (e) {
+          print(e.toString());
+        }
+      });
     });
   }
 
@@ -232,8 +235,12 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                           strokeAlign: StrokeAlign.inside)),
                   child: Column(
                     children: [
-                      Text(
-                        "Status: $_playerConnectionStatus",
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text("Status: $_playerConnectionStatus"),
+                          Text("Username: ${currentUser.username}"),
+                        ],
                       ),
                       const SizedBox(
                         height: 10,
@@ -304,7 +311,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
             ],
           ),
           Row(
-            children: [Text('Turkey coins: $_playerMoney')],
+            children: [Text('$_playerMoney')],
           ),
           Container(
             height: 50,
@@ -315,48 +322,84 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                 if (_validActions.check == true)
                   ElevatedButton(
                     onPressed: () async {
-                      await _hubConnection.invoke("PlayerMove", args: [
-                        currentUser.username,
-                        'check',
-                        0,
-                        _signalRClientId
-                      ]);
+                      print(
+                          "------- ${currentUser.username} has CHECKED -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          'check',
+                          0,
+                          _signalRClientId
+                        ]);
+                        setState(() {
+                          ResetUserButtons();
+                        });
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
                     },
                     child: const Text(textScaleFactor: 1.25, 'CHECK'),
                   ),
                 if (_validActions.call == true)
                   ElevatedButton(
                     onPressed: () async {
-                      await _hubConnection.invoke("PlayerMove", args: [
-                        currentUser.username,
-                        'call',
-                        0,
-                        _signalRClientId
-                      ]);
+                      print(
+                          "------- ${currentUser.username} has CALLED -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          'call',
+                          0,
+                          _signalRClientId
+                        ]);
+                        setState(() {
+                          ResetUserButtons();
+                        });
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
                     },
                     child: const Text(textScaleFactor: 1.25, 'CALL'),
                   ),
                 if (_validActions.raise == true)
                   ElevatedButton(
                     onPressed: () async {
-                      await _hubConnection.invoke("PlayerMove", args: [
-                        currentUser.username,
-                        "raise",
-                        10,
-                        _signalRClientId
-                      ]);
+                      print(
+                          "------- ${currentUser.username} has RAISED. -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          "raise",
+                          10,
+                          _signalRClientId
+                        ]);
+                        setState(() {
+                          ResetUserButtons();
+                        });
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
                     },
                     child: const Text(textScaleFactor: 1.25, 'RAISE'),
                   ),
                 if (_validActions.fold == true)
                   ElevatedButton(
                     onPressed: () async {
-                      await _hubConnection.invoke("PlayerMove", args: [
-                        currentUser.username,
-                        "fold",
-                        0,
-                        _signalRClientId
-                      ]);
+                      print(
+                          "------- ${currentUser.username} has FOLDED. -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          "fold",
+                          0,
+                          _signalRClientId
+                        ]);
+                        setState(() {
+                          ResetUserButtons();
+                        });
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
                     },
                     child: const Text(textScaleFactor: 1.25, 'FOLD'),
                   ),
@@ -366,5 +409,10 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
         ]),
       ),
     );
+  }
+
+  void ResetUserButtons() {
+    _validActions =
+        ActionModel(call: false, check: false, raise: false, fold: false);
   }
 }
