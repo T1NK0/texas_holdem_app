@@ -2,6 +2,7 @@ import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:texas_holdem_app/globals.dart';
+import 'package:texas_holdem_app/model/action_model.dart';
 import 'package:texas_holdem_app/services/http_service.dart';
 
 import 'package:logger/logger.dart';
@@ -26,6 +27,8 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     "",
   ];
 
+  late ActionModel _validActions =
+      ActionModel(call: false, check: false, raise: false, fold: false);
   late bool _isReady;
 
   String _playerMoney = "";
@@ -170,6 +173,15 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
         }
       });
     });
+
+    _hubConnection.on("ActionReady", (arguments) async {
+      try {
+        var obj = arguments![0];
+        _validActions = ActionModel.fromMap(obj as Map);
+      } on Exception catch (e) {
+        print(e.toString());
+      }
+    });
   }
 
   Logger get newMethod => PrintLog;
@@ -203,7 +215,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
           },
         ),
       ),
-      body: SingleChildScrollView(
+      body: Center(
         child: Column(children: [
           Row(
             children: [
@@ -300,50 +312,54 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    await _hubConnection.invoke("PlayerMove", args: [
-                      currentUser.username,
-                      'check',
-                      0,
-                      _signalRClientId
-                    ]);
-                  },
-                  child: const Text(textScaleFactor: 1.25, 'CHECK'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await _hubConnection.invoke("PlayerMove", args: [
-                      currentUser.username,
-                      'call',
-                      0,
-                      _signalRClientId
-                    ]);
-                  },
-                  child: const Text(textScaleFactor: 1.25, 'CALL'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await _hubConnection.invoke("PlayerMove", args: [
-                      currentUser.username,
-                      "raise",
-                      10,
-                      _signalRClientId
-                    ]);
-                  },
-                  child: const Text(textScaleFactor: 1.25, 'RAISE'),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    await _hubConnection.invoke("PlayerMove", args: [
-                      currentUser.username,
-                      "fold",
-                      0,
-                      _signalRClientId
-                    ]);
-                  },
-                  child: const Text(textScaleFactor: 1.25, 'FOLD'),
-                ),
+                if (_validActions.check == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _hubConnection.invoke("PlayerMove", args: [
+                        currentUser.username,
+                        'check',
+                        0,
+                        _signalRClientId
+                      ]);
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'CHECK'),
+                  ),
+                if (_validActions.call == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _hubConnection.invoke("PlayerMove", args: [
+                        currentUser.username,
+                        'call',
+                        0,
+                        _signalRClientId
+                      ]);
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'CALL'),
+                  ),
+                if (_validActions.raise == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _hubConnection.invoke("PlayerMove", args: [
+                        currentUser.username,
+                        "raise",
+                        10,
+                        _signalRClientId
+                      ]);
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'RAISE'),
+                  ),
+                if (_validActions.fold == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      await _hubConnection.invoke("PlayerMove", args: [
+                        currentUser.username,
+                        "fold",
+                        0,
+                        _signalRClientId
+                      ]);
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'FOLD'),
+                  ),
               ],
             ),
           ),
