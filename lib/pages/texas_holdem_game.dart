@@ -32,7 +32,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   late bool _isReady;
 
   String _playerMoney = "";
-  String _potMoney = "";
+  String _potMoney = "000";
 
   //Player hand
   PlayingCard _firstPlayerCard = PlayingCard();
@@ -243,7 +243,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                         height: 10,
                       ),
                       Container(
-                        width: 390,
+                        width: 380,
                         padding: EdgeInsets.all(10),
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -271,7 +271,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Container(
-                width: 390,
+                width: 380,
                 margin: EdgeInsets.all(5),
                 child: Column(children: [
                   Row(
@@ -316,7 +316,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                   ),
                   SizedBox(height: 10),
                   Container(
-                    width: 400,
+                    width: 380,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
