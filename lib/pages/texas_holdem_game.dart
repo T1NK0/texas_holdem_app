@@ -178,10 +178,10 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
 
   // Gets the path to card images
   String GetPath(PlayingCard card) {
-    if (card.value == "default") {
+    if (card.rank == "default") {
       return "default";
     } else {
-      return card.value + "_of_" + card.suit;
+      return card.rank + "_of_" + card.suit;
     }
   }
 
