@@ -19,7 +19,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   //Properties
   String _playerConnectionStatus = "Disconnected";
   String _message = "Message to receive";
-  String _playerMoney = "";
   String _signalRClientId = "";
   List<String> _messageLog = [
     "",
@@ -28,6 +27,8 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   ];
 
   late bool _isReady;
+
+  String _playerMoney = "";
 
   //Player hand
   PlayingCard _firstPlayerCard = PlayingCard();
@@ -88,6 +89,30 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
           var obj3 = arguments[2];
           _thirdCommunityCard =
               PlayingCard.fromMap(obj3 as Map<String, dynamic>);
+        } on Exception catch (e) {
+          print(e.toString());
+        }
+      });
+    });
+
+    _hubConnection.on("GetTurn", (arguments) async {
+      setState(() {
+        try {
+          var obj = arguments![0];
+          _fourthCommunityCard =
+              PlayingCard.fromMap(obj as Map<String, dynamic>);
+        } on Exception catch (e) {
+          print(e.toString());
+        }
+      });
+    });
+
+    _hubConnection.on("GetRiver", (arguments) async {
+      setState(() {
+        try {
+          var obj = arguments![0];
+          _fifthCommunityCard =
+              PlayingCard.fromMap(obj as Map<String, dynamic>);
         } on Exception catch (e) {
           print(e.toString());
         }
@@ -294,7 +319,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                     await _hubConnection.invoke("PlayerMove", args: [
                       currentUser.username,
                       "raise",
-                      200,
+                      10,
                       _signalRClientId
                     ]);
                   },
