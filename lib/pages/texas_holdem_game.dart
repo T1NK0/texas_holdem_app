@@ -28,7 +28,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     "",
   ];
 
-  late List<WinnerModel> _winners = [];
   late ActionModel _validActions =
       ActionModel(call: false, check: false, raise: false, fold: false);
   late bool _isReady;
@@ -201,44 +200,44 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     });
 
     _hubConnection.on("ShowWinners", (arguments) {
-      setState(() {
-        try {
-          setState(() {
-            ResetUserButtons();
-          });
-          var obj = arguments![0];
-          _winners = WinnerModel.fromMap(obj as Map) as List<WinnerModel>;
+      try {
+        var obj = arguments![0] as List;
+        var usernameWinner = obj[0].toString();
 
-          showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                    title: const Text(
-                      'WINNERS',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                  shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                  title: const Text(
+                    'WINNERS',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
                     ),
-                    content: Column(
-                      children: [for (var winner in _winners) Text("$winner")],
-                    ),
-                    actions: <Widget>[
-                      MaterialButton(
+                    textAlign: TextAlign.center,
+                  ),
+                  content: Text("$usernameWinner"),
+                  actions: <Widget>[
+                    Center(
+                      child: MaterialButton(
                         color: Colors.red,
                         child: const Text('OK'),
                         onPressed: () {
                           Navigator.pop(context);
-                          setState(() {});
+                          setState(() {
+                            ResetAll();
+                          });
                         },
                       ),
-                    ]);
-              });
-        } on Exception catch (e) {
-          print(e.toString());
-        }
-      });
+                    ),
+                  ]);
+            });
+      } on Exception catch (e) {
+        print(e.toString());
+      }
     });
   }
 
@@ -389,10 +388,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                     "Turkey Coins: ${_playerMoney}",
                     textScaleFactor: 1.5,
                   ),
-                  // Text(
-                  //   "Status: $_playerConnectionStatus",
-                  //   textScaleFactor: 1.5,
-                  // ),
                 ],
               ),
               SizedBox(height: 10),
@@ -504,5 +499,31 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   void ResetUserButtons() {
     _validActions =
         ActionModel(call: false, check: false, raise: false, fold: false);
+  }
+
+  void ResetAll() {
+    // Log messages
+    _messageLog[0] = "";
+    _messageLog[1] = "";
+    _messageLog[2] = "";
+
+    // Community Cards
+    _firstCommunityCard = PlayingCard();
+    _secondCommunityCard = PlayingCard();
+    _thirdCommunityCard = PlayingCard();
+    _fourthCommunityCard = PlayingCard();
+    _fifthCommunityCard = PlayingCard();
+
+    // Player hand cards
+    _firstPlayerCard = PlayingCard();
+    _secondPlayerCard = PlayingCard();
+
+    // Pot
+    _potMoney = "000";
+
+    // Buttons
+    _validActions =
+        ActionModel(call: false, check: false, raise: false, fold: false);
+    _isReady = false;
   }
 }
