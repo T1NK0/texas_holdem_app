@@ -26,6 +26,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     "",
     "",
   ];
+  List<String> _winners = [];
 
   late ActionModel _validActions =
       ActionModel(call: false, check: false, raise: false, fold: false);
@@ -192,6 +193,45 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
           var obj = arguments![0];
           _validActions = ActionModel.fromMap(obj as Map);
           print("------- ActionReady has run -------");
+        } on Exception catch (e) {
+          print(e.toString());
+        }
+      });
+    });
+
+    _hubConnection.on("ShowWinners", (arguments) {
+      setState(() {
+        try {
+          var obj = arguments![0];
+          _validActions = ActionModel.fromMap(obj as Map);
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                    title: const Text(
+                      'WINNERS',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    content: Column(
+                      children: [
+                        for (var winner in _winners) Text("${winner}")
+                      ],
+                    ),
+                    actions: <Widget>[
+                      MaterialButton(
+                        color: Colors.red,
+                        child: const Text('OK'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          setState(() {});
+                        },
+                      ),
+                    ]);
+              });
         } on Exception catch (e) {
           print(e.toString());
         }
