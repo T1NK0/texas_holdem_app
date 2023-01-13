@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:texas_holdem_app/globals.dart';
 import 'package:texas_holdem_app/model/action_model.dart';
+import 'package:texas_holdem_app/model/winners_model.dart';
 import 'package:texas_holdem_app/services/http_service.dart';
 
 import 'package:logger/logger.dart';
@@ -26,8 +27,8 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     "",
     "",
   ];
-  List<String> _winners = [];
 
+  late List<WinnerModel> _winners = [];
   late ActionModel _validActions =
       ActionModel(call: false, check: false, raise: false, fold: false);
   late bool _isReady;
@@ -202,8 +203,12 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     _hubConnection.on("ShowWinners", (arguments) {
       setState(() {
         try {
+          setState(() {
+            ResetUserButtons();
+          });
           var obj = arguments![0];
-          _validActions = ActionModel.fromMap(obj as Map);
+          _winners = WinnerModel.fromMap(obj as Map) as List<WinnerModel>;
+
           showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -217,9 +222,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                       textAlign: TextAlign.center,
                     ),
                     content: Column(
-                      children: [
-                        for (var winner in _winners) Text("${winner}")
-                      ],
+                      children: [for (var winner in _winners) Text("$winner")],
                     ),
                     actions: <Widget>[
                       MaterialButton(
@@ -372,133 +375,126 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
           ),
           Container(
             alignment: Alignment.bottomCenter,
-            child: Column(
-              children: [
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Text(
-                      "Player: ${currentUser.username}",
-                      textScaleFactor: 1.5,
-                    ),
-                    SizedBox(width: 20),
-                    Text(
-                      "Turkey Coins: ${_playerMoney}",
-                      textScaleFactor: 1.5,
-                    ),
-                    // Text(
-                    //   "Status: $_playerConnectionStatus",
-                    //   textScaleFactor: 1.5,
-                    // ),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      if (_isReady == false)
-                        ElevatedButton(
-                          onPressed: _isReady
-                              ? null
-                              : () async {
-                                  print(_hubConnection.connectionId);
-                                  _isReady = true;
-                                  await _hubConnection.invoke("PlayerIsReady",
-                                      args: [
-                                        currentUser.username,
-                                        _signalRClientId
-                                      ]);
-                                },
-                          child: const Text('Ready to play'),
-                        ),
-                      if (_validActions.check == true)
-                        ElevatedButton(
-                          onPressed: () async {
-                            print(
-                                "------- ${currentUser.username} has CHECKED -------");
-                            try {
-                              await _hubConnection.invoke("PlayerMove", args: [
-                                currentUser.username,
-                                'check',
-                                0,
-                                _signalRClientId
-                              ]);
-                              setState(() {
-                                ResetUserButtons();
-                              });
-                            } on Exception catch (e) {
-                              print(e.toString());
-                            }
+            child: Column(children: [
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Text(
+                    "Player: ${currentUser.username}",
+                    textScaleFactor: 1.5,
+                  ),
+                  SizedBox(width: 20),
+                  Text(
+                    "Turkey Coins: ${_playerMoney}",
+                    textScaleFactor: 1.5,
+                  ),
+                  // Text(
+                  //   "Status: $_playerConnectionStatus",
+                  //   textScaleFactor: 1.5,
+                  // ),
+                ],
+              ),
+              SizedBox(height: 10),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                if (_isReady == false)
+                  ElevatedButton(
+                    onPressed: _isReady
+                        ? null
+                        : () async {
+                            print(_hubConnection.connectionId);
+                            _isReady = true;
+                            await _hubConnection.invoke("PlayerIsReady",
+                                args: [currentUser.username, _signalRClientId]);
                           },
-                          child: const Text(textScaleFactor: 1.25, 'CHECK'),
-                        ),
-                      if (_validActions.call == true)
-                        ElevatedButton(
-                          onPressed: () async {
-                            print(
-                                "------- ${currentUser.username} has CALLED -------");
-                            try {
-                              await _hubConnection.invoke("PlayerMove", args: [
-                                currentUser.username,
-                                'call',
-                                0,
-                                _signalRClientId
-                              ]);
-                              setState(() {
-                                ResetUserButtons();
-                              });
-                            } on Exception catch (e) {
-                              print(e.toString());
-                            }
-                          },
-                          child: const Text(textScaleFactor: 1.25, 'CALL'),
-                        ),
-                      if (_validActions.raise == true)
-                        ElevatedButton(
-                          onPressed: () async {
-                            print(
-                                "------- ${currentUser.username} has RAISED. -------");
-                            try {
-                              await _hubConnection.invoke("PlayerMove", args: [
-                                currentUser.username,
-                                "raise",
-                                10,
-                                _signalRClientId
-                              ]);
-                              setState(() {
-                                ResetUserButtons();
-                              });
-                            } on Exception catch (e) {
-                              print(e.toString());
-                            }
-                          },
-                          child: const Text(textScaleFactor: 1.25, 'RAISE'),
-                        ),
-                      if (_validActions.fold == true)
-                        ElevatedButton(
-                          onPressed: () async {
-                            print(
-                                "------- ${currentUser.username} has FOLDED. -------");
-                            try {
-                              await _hubConnection.invoke("PlayerMove", args: [
-                                currentUser.username,
-                                "fold",
-                                0,
-                                _signalRClientId
-                              ]);
-                              setState(() {
-                                ResetUserButtons();
-                              });
-                            } on Exception catch (e) {
-                              print(e.toString());
-                            }
-                          },
-                          child: const Text(textScaleFactor: 1.25, 'FOLD'),
-                        ),
-                    ]),
-              ],
-            ),
+                    child: const Text('Ready to play'),
+                  ),
+                if (_validActions.check == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        ResetUserButtons();
+                      });
+                      print(
+                          "------- ${currentUser.username} has CHECKED -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          'check',
+                          0,
+                          _signalRClientId
+                        ]);
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'CHECK'),
+                  ),
+                if (_validActions.call == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        ResetUserButtons();
+                      });
+                      print(
+                          "------- ${currentUser.username} has CALLED -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          'call',
+                          0,
+                          _signalRClientId
+                        ]);
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'CALL'),
+                  ),
+                if (_validActions.raise == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        ResetUserButtons();
+                      });
+                      print(
+                          "------- ${currentUser.username} has RAISED. -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          "raise",
+                          10,
+                          _signalRClientId
+                        ]);
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'RAISE'),
+                  ),
+                if (_validActions.fold == true)
+                  ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        ResetUserButtons();
+                      });
+                      print(
+                          "------- ${currentUser.username} has FOLDED. -------");
+                      try {
+                        await _hubConnection.invoke("PlayerMove", args: [
+                          currentUser.username,
+                          "fold",
+                          0,
+                          _signalRClientId
+                        ]);
+                      } on Exception catch (e) {
+                        print(e.toString());
+                      }
+                    },
+                    child: const Text(textScaleFactor: 1.25, 'FOLD'),
+                  ),
+              ]),
+            ]),
           ),
         ]),
       ),
