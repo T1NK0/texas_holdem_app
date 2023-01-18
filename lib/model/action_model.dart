@@ -1,7 +1,4 @@
 import 'dart:core';
-import 'dart:ffi';
-
-import 'package:flutter/widgets.dart';
 
 class ActionModel {
   final bool call;

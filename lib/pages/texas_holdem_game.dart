@@ -1,24 +1,19 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:texas_holdem_app/globals.dart';
 import 'package:texas_holdem_app/model/action_model.dart';
-import 'package:texas_holdem_app/model/winners_model.dart';
-import 'package:texas_holdem_app/services/http_service.dart';
-
-import 'package:logger/logger.dart';
 import 'package:signalr_netcore/signalr_client.dart';
-
 import 'package:texas_holdem_app/model/playing_card_model.dart';
 import 'package:texas_holdem_app/widgets/playing_card_widget.dart';
 
 class TexasHoldemGamePage extends StatefulWidget {
+  const TexasHoldemGamePage({super.key});
+
   @override
   _TexasHoldemRoomState createState() => _TexasHoldemRoomState();
 }
 
 class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
-  //Properties
+  /// Properties
   String _playerConnectionStatus = "Disconnected";
   String _message = "Message to receive";
   String _signalRClientId = "";
@@ -35,22 +30,21 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
   String _playerMoney = "";
   String _potMoney = "000";
 
-  //Player hand
+  /// Player hand
   PlayingCard _firstPlayerCard = PlayingCard();
   PlayingCard _secondPlayerCard = PlayingCard();
 
-  //Community cards
+  /// Community cards
   PlayingCard _firstCommunityCard = PlayingCard();
   PlayingCard _secondCommunityCard = PlayingCard();
   PlayingCard _thirdCommunityCard = PlayingCard();
   PlayingCard _fourthCommunityCard = PlayingCard();
   PlayingCard _fifthCommunityCard = PlayingCard();
 
+  ///  Hub
   late HubConnection _hubConnection;
-  HttpClientService clientService = HttpClientService();
-  Logger logger = Logger(
-    printer: PrettyPrinter(),
-  );
+
+  /// Methods
 
   @override
   void initState() {
@@ -59,7 +53,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     _isReady = false;
   }
 
-  // What to do when player disconnects from the room.
+  /// What to do when player disconnects from the room.
   @override
   void dispose() async {
     super.dispose();
@@ -72,12 +66,12 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
           "http://10.0.2.2:5000/texas",
           options: HttpConnectionOptions(
             accessTokenFactory: () async => await currentUser.GetToken(),
-            // transport: HttpTransportType.WebSockets,
           ),
         )
         .withAutomaticReconnect()
         .build();
 
+    /// Set the community cards to the random cards.
     _hubConnection.on("GetFlop", (arguments) {
       setState(() {
         try {
@@ -98,6 +92,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Get's a fourth community card
     _hubConnection.on("GetTurn", (arguments) {
       setState(() {
         try {
@@ -110,6 +105,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Get's a sixth community card
     _hubConnection.on("GetRiver", (arguments) {
       setState(() {
         try {
@@ -122,6 +118,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Get's the cards for the player hand.
     _hubConnection.on("GetPlayerCards", (arguments) {
       setState(() {
         try {
@@ -136,20 +133,21 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Starts connection
+    /// Inform sever player is connceted to room.
     try {
-      //Starts connection
       await _hubConnection.start();
       setState(() {
         _playerConnectionStatus = "Connected";
         _signalRClientId = _hubConnection.connectionId!;
       });
-      //Inform sever player is connceted to room.
       await _hubConnection.invoke("PlayerConnected",
           args: [currentUser.username, _signalRClientId]);
     } catch (error) {
       print(error);
     }
 
+    /// Updates the players currency.
     _hubConnection.on("UpdateMoney", (arguments) {
       setState(() {
         try {
@@ -161,6 +159,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Updates the total pot.
     _hubConnection.on("UpdatePot", (arguments) {
       setState(() {
         try {
@@ -172,6 +171,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Prints the message to the gamelog at the top of the game room.
     _hubConnection.on("SendMessage", (arguments) {
       setState(() {
         try {
@@ -187,6 +187,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Returns a list of available actions to display on the users app.
     _hubConnection.on("ActionReady", (arguments) {
       setState(() {
         try {
@@ -199,6 +200,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
       });
     });
 
+    /// Shows the dialog that pops up when a winner is chosen.
     _hubConnection.on("ShowWinners", (arguments) {
       try {
         var obj = arguments![0] as List;
@@ -241,11 +243,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     });
   }
 
-  Logger get newMethod => PrintLog;
-
-  Logger get PrintLog => logger;
-
-  // Gets the path to card images
+  /// Gets the path to card images
   String GetPath(PlayingCard card) {
     if (card.rank == "default") {
       return "default";
@@ -254,11 +252,45 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
     }
   }
 
+  /// Hides all user actions.
+  void ResetUserButtons() {
+    _validActions =
+        ActionModel(call: false, check: false, raise: false, fold: false);
+  }
+
+  /// Reset's all the current games info back to default so a new round can start.
+  void ResetAll() {
+    // Log messages
+    _messageLog[0] = "";
+    _messageLog[1] = "";
+    _messageLog[2] = "";
+
+    // Community Cards
+    _firstCommunityCard = PlayingCard();
+    _secondCommunityCard = PlayingCard();
+    _thirdCommunityCard = PlayingCard();
+    _fourthCommunityCard = PlayingCard();
+    _fifthCommunityCard = PlayingCard();
+
+    // Player hand cards
+    _firstPlayerCard = PlayingCard();
+    _secondPlayerCard = PlayingCard();
+
+    // Pot
+    _potMoney = "000";
+
+    // Buttons
+    _validActions =
+        ActionModel(call: false, check: false, raise: false, fold: false);
+    _isReady = false;
+  }
+
+  /// Widgets (ui)
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Texas Holdem'),
+        title: const Text('Texas Holdem'),
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
@@ -266,6 +298,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
               onPressed: () async {
                 await _hubConnection.invoke("PlayerDisconnected",
                     args: [currentUser.username, _signalRClientId]);
+                // ignore: use_build_context_synchronously
                 Navigator.pop(context);
               },
             );
@@ -278,7 +311,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                  margin: EdgeInsets.all(5),
+                  margin: const EdgeInsets.all(5),
                   child: Column(
                     children: [
                       const SizedBox(
@@ -286,9 +319,10 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                       ),
                       Container(
                         width: 380,
-                        padding: EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(10)),
                             border: Border.all(
                                 color: Colors.grey,
                                 width: 1,
@@ -296,7 +330,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                                 strokeAlign: StrokeAlign.inside)),
                         child: Column(
                           children: [
-                            Text("GAMELOG",
+                            const Text("GAMELOG",
                                 textScaleFactor: 1.25,
                                 style: TextStyle(color: Colors.red)),
                             Text(_messageLog[2]),
@@ -314,24 +348,24 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
             children: [
               Container(
                 width: 380,
-                margin: EdgeInsets.all(5),
+                margin: const EdgeInsets.all(5),
                 child: Column(children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         'Community Cards',
                         textScaleFactor: 1.25,
                         style: TextStyle(color: Colors.red),
                       ),
                       Text(
-                        'Total Pot: ${_potMoney}',
+                        'Total Pot: $_potMoney',
                         textScaleFactor: 1.25,
-                        style: TextStyle(color: Colors.red),
+                        style: const TextStyle(color: Colors.red),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -350,20 +384,20 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
             children: [
               Column(
                 children: [
-                  SizedBox(height: 10),
-                  Text(
+                  const SizedBox(height: 10),
+                  const Text(
                     "Player hand",
                     textScaleFactor: 1.25,
                     style: TextStyle(color: Colors.red),
                   ),
-                  SizedBox(height: 10),
-                  Container(
+                  const SizedBox(height: 10),
+                  SizedBox(
                     width: 380,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         PlayingCardWidget(path: GetPath(_firstPlayerCard)),
-                        SizedBox(width: 10),
+                        const SizedBox(width: 10),
                         PlayingCardWidget(path: GetPath(_secondPlayerCard))
                       ],
                     ),
@@ -375,7 +409,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
           Container(
             alignment: Alignment.bottomCenter,
             child: Column(children: [
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
@@ -383,21 +417,20 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                     "Player: ${currentUser.username}",
                     textScaleFactor: 1.5,
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   Text(
-                    "Turkey Coins: ${_playerMoney}",
+                    "Turkey Coins: $_playerMoney",
                     textScaleFactor: 1.5,
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
                 if (_isReady == false)
                   ElevatedButton(
                     onPressed: _isReady
                         ? null
                         : () async {
-                            print(_hubConnection.connectionId);
                             _isReady = true;
                             await _hubConnection.invoke("PlayerIsReady",
                                 args: [currentUser.username, _signalRClientId]);
@@ -441,6 +474,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                           _signalRClientId
                         ]);
                       } on Exception catch (e) {
+                        // ignore: avoid_print
                         print(e.toString());
                       }
                     },
@@ -452,8 +486,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                       setState(() {
                         ResetUserButtons();
                       });
-                      print(
-                          "------- ${currentUser.username} has RAISED. -------");
                       try {
                         await _hubConnection.invoke("PlayerMove", args: [
                           currentUser.username,
@@ -462,6 +494,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                           _signalRClientId
                         ]);
                       } on Exception catch (e) {
+                        // ignore: avoid_print
                         print(e.toString());
                       }
                     },
@@ -473,8 +506,6 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                       setState(() {
                         ResetUserButtons();
                       });
-                      print(
-                          "------- ${currentUser.username} has FOLDED. -------");
                       try {
                         await _hubConnection.invoke("PlayerMove", args: [
                           currentUser.username,
@@ -483,6 +514,7 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
                           _signalRClientId
                         ]);
                       } on Exception catch (e) {
+                        // ignore: avoid_print
                         print(e.toString());
                       }
                     },
@@ -494,36 +526,5 @@ class _TexasHoldemRoomState extends State<TexasHoldemGamePage> {
         ]),
       ),
     );
-  }
-
-  void ResetUserButtons() {
-    _validActions =
-        ActionModel(call: false, check: false, raise: false, fold: false);
-  }
-
-  void ResetAll() {
-    // Log messages
-    _messageLog[0] = "";
-    _messageLog[1] = "";
-    _messageLog[2] = "";
-
-    // Community Cards
-    _firstCommunityCard = PlayingCard();
-    _secondCommunityCard = PlayingCard();
-    _thirdCommunityCard = PlayingCard();
-    _fourthCommunityCard = PlayingCard();
-    _fifthCommunityCard = PlayingCard();
-
-    // Player hand cards
-    _firstPlayerCard = PlayingCard();
-    _secondPlayerCard = PlayingCard();
-
-    // Pot
-    _potMoney = "000";
-
-    // Buttons
-    _validActions =
-        ActionModel(call: false, check: false, raise: false, fold: false);
-    _isReady = false;
   }
 }

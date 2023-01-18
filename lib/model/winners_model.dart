@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class WinnerModel {
   final String username;
 

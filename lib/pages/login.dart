@@ -12,7 +12,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  //Properties
+  /// Properties
   late String _loginToken = "";
   final HttpClientService clientService = HttpClientService();
   final nameController = TextEditingController();
@@ -30,8 +30,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _openGameHub() {
-    print("-----Open Gamehub-----");
-    print('Token: ${currentUser.token}');
     Navigator.push<void>(
       context,
       MaterialPageRoute<void>(
@@ -40,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  //Widget form
+  /// Widgets
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +93,7 @@ class _LoginPageState extends State<LoginPage> {
                                 await clientService.login(
                                     nameController.text, _loginToken);
                                 // If the form is valid, display a snackbar.
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content:
